@@ -5174,6 +5174,27 @@ AudioSource:
   m_CorrespondingSourceObject: {fileID: 7736986772047432925, guid: 57e8d3ebdcca3a94494f1f374a9768ea, type: 3}
   m_PrefabInstance: {fileID: 983061261}
   m_PrefabAsset: {fileID: 0}
+--- !u!82 &1954121623 stripped
+AudioSource:
+  m_CorrespondingSourceObject: {fileID: 3836789926053590858, guid: f25d9b879487ead40ab2c86aedbae6f0, type: 3}
+  m_PrefabInstance: {fileID: 7000048238568657504}
+  m_PrefabAsset: {fileID: 0}
+--- !u!61 &1954121624 stripped
+BoxCollider2D:
+  m_CorrespondingSourceObject: {fileID: 5954303934390927936, guid: f25d9b879487ead40ab2c86aedbae6f0, type: 3}
+  m_PrefabInstance: {fileID: 7000048238568657504}
+  m_PrefabAsset: {fileID: 0}
+--- !u!114 &1954121627 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 8234314733984834632, guid: f25d9b879487ead40ab2c86aedbae6f0, type: 3}
+  m_PrefabInstance: {fileID: 7000048238568657504}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ace2189d71f0aa46a356d7b411ba77c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &2146685766
 GameObject:
   m_ObjectHideFlags: 0
@@ -5414,6 +5435,30 @@ PrefabInstance:
     - target: {fileID: 2417319803335717869, guid: f25d9b879487ead40ab2c86aedbae6f0, type: 3}
       propertyPath: m_Name
       value: Player
+      objectReference: {fileID: 0}
+    - target: {fileID: 8666558282112218166, guid: f25d9b879487ead40ab2c86aedbae6f0, type: 3}
+      propertyPath: health
+      value: 
+      objectReference: {fileID: 1954121627}
+    - target: {fileID: 8666558282112218166, guid: f25d9b879487ead40ab2c86aedbae6f0, type: 3}
+      propertyPath: maxSpeed
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8666558282112218166, guid: f25d9b879487ead40ab2c86aedbae6f0, type: 3}
+      propertyPath: collider2d
+      value: 
+      objectReference: {fileID: 1954121624}
+    - target: {fileID: 8666558282112218166, guid: f25d9b879487ead40ab2c86aedbae6f0, type: 3}
+      propertyPath: audioSource
+      value: 
+      objectReference: {fileID: 1954121623}
+    - target: {fileID: 8666558282112218166, guid: f25d9b879487ead40ab2c86aedbae6f0, type: 3}
+      propertyPath: jumpTakeOffSpeed
+      value: 2
+      objectReference: {fileID: 0}
+    - target: {fileID: 8881962732161577870, guid: f25d9b879487ead40ab2c86aedbae6f0, type: 3}
+      propertyPath: m_BodyType
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: f25d9b879487ead40ab2c86aedbae6f0, type: 3}
