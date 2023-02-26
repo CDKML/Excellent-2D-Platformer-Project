@@ -4,6 +4,7 @@ This project will contain the basic mechanics that make a good platformer such a
 2. Coyote time
 3. Variable jump time
 4. Ledge hop (pixel jump)
+5. Look ahead
 
 In terms of abilities, the goal is to implement the following basic ones:
 1. Double jump
