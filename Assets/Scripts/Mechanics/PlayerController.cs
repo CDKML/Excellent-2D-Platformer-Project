@@ -5,6 +5,7 @@ using Platformer.Gameplay;
 using static Platformer.Core.Simulation;
 using Platformer.Model;
 using Platformer.Core;
+using UnityEngine.UI;
 
 namespace Platformer.Mechanics
 {
@@ -36,11 +37,11 @@ namespace Platformer.Mechanics
         public Health health;
         public bool controlEnabled = true;
 
-        float coyoteTime = 0.2f;
-        float coyoteTimeCounter; 
+        public float coyoteTime = 0.15f;
+        float coyoteTimeCounter;
 
         // Jump buffer variables
-        float jumpBufferTime = 0.25f;
+        public float jumpBufferTime = 0.2f;
         float jumpBufferTimeCounter;
 
         bool jump;
@@ -48,6 +49,8 @@ namespace Platformer.Mechanics
         SpriteRenderer spriteRenderer;
         //internal Animator animator;
         readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
+        public Text textCanvas;
+        private KeyCode lastKeyCode;
 
         public Bounds Bounds => collider2d.bounds;
 
@@ -62,27 +65,25 @@ namespace Platformer.Mechanics
 
         protected override void Update()
         {
-
-            if (IsGrounded)
-            {
-                coyoteTimeCounter = coyoteTime;
-            }
-            else
-            {
-                coyoteTimeCounter -= Time.deltaTime;
-            }
             if (controlEnabled)
             {
+                LastKeyPressed();
+
                 move.x = Input.GetAxis("Horizontal");
 
+                CoyoteTimer();
                 JumpBuffer();
 
-                if (jumpState == JumpState.Grounded && Input.GetButtonDown("Jump") || jumpBufferTimeCounter > 0)
+                if (coyoteTimeCounter > 0f && jumpBufferTimeCounter > 0f && jumpState != JumpState.Jumping)
+                {
                     jumpState = JumpState.PrepareToJump;
+                    jumpBufferTimeCounter = 0f;
+                }
                 else if (Input.GetButtonUp("Jump"))
                 {
                     stopJump = true;
                     Schedule<PlayerStopJump>().player = this;
+                    coyoteTimeCounter = 0f;
                 }
             }
             else
@@ -93,10 +94,35 @@ namespace Platformer.Mechanics
             base.Update();
         }
 
+        private void LastKeyPressed()
+        {
+            if (Input.anyKeyDown)
+            {
+                foreach (KeyCode keyCode in System.Enum.GetValues(typeof(KeyCode)))
+                {
+                    if (Input.GetKeyDown(keyCode))
+                    {
+                        lastKeyCode = keyCode;
+                    }
+                }
+                textCanvas.text = "Last Key Pressed: " + lastKeyCode.ToString();
+            }
+        }
+
+        private void CoyoteTimer()
+        {
+            if (IsGrounded)
+            {
+                coyoteTimeCounter = coyoteTime;
+            }
+            else
+            {
+                coyoteTimeCounter -= Time.deltaTime;
+            }
+        }
+
         private void JumpBuffer()
         {
-
-            // Check for jump buffer input
             if (Input.GetButtonDown("Jump"))
             {
                 jumpBufferTimeCounter = jumpBufferTime;
@@ -139,7 +165,7 @@ namespace Platformer.Mechanics
 
         protected override void ComputeVelocity()
         {
-            if (jump && IsGrounded)
+            if (jump && (IsGrounded || coyoteTime > 0f))
             {
                 velocity.y = jumpTakeOffSpeed * model.jumpModifier;
                 jump = false;
