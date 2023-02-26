@@ -40,11 +40,11 @@ namespace Platformer.Mechanics
         public Health health;
         public bool controlEnabled = true;
 
-        public float coyoteTime = 0.15f;
+        public float coyoteTime = 0.1f;
         float coyoteTimeCounter;
 
         // Jump buffer variables
-        public float jumpBufferTime = 0.15f;
+        public float jumpBufferTime = 0.1f;
         float jumpBufferTimeCounter;
 
         bool jump;
