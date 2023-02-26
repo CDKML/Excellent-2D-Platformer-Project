@@ -6,6 +6,9 @@ using static Platformer.Core.Simulation;
 using Platformer.Model;
 using Platformer.Core;
 using UnityEngine.UI;
+using System;
+using Unity.Burst.CompilerServices;
+using Unity.VisualScripting;
 
 namespace Platformer.Mechanics
 {
@@ -41,7 +44,7 @@ namespace Platformer.Mechanics
         float coyoteTimeCounter;
 
         // Jump buffer variables
-        public float jumpBufferTime = 0.2f;
+        public float jumpBufferTime = 0.15f;
         float jumpBufferTimeCounter;
 
         bool jump;
@@ -73,6 +76,7 @@ namespace Platformer.Mechanics
 
                 CoyoteTimer();
                 JumpBuffer();
+                LedgeHop();
 
                 if (coyoteTimeCounter > 0f && jumpBufferTimeCounter > 0f && jumpState != JumpState.Jumping)
                 {
@@ -85,6 +89,7 @@ namespace Platformer.Mechanics
                     Schedule<PlayerStopJump>().player = this;
                     coyoteTimeCounter = 0f;
                 }
+
             }
             else
             {
@@ -92,6 +97,27 @@ namespace Platformer.Mechanics
             }
             UpdateJumpState();
             base.Update();
+        }
+        public Color lineColor;
+
+        private void LedgeHop()
+        {
+            Vector3 lineStart = Bounds.center;
+
+            // Check if the player is near the edge of a platform and perform a ledge hop
+            if (move.y < 0f && IsGrounded && jumpState == JumpState.Grounded)
+            {
+                var bounds = collider2d.bounds;
+                var raycastHit = Physics2D.Raycast(bounds.center, Vector2.down, bounds.extents.y + 1f);
+                Debug.DrawLine(lineStart, raycastHit.point, lineColor);
+                if (raycastHit.collider != null && raycastHit.fraction > 0f && raycastHit.fraction < 0.5f)
+                {
+                    jumpState = JumpState.Jumping;
+                    velocity = new Vector2(move.x * maxSpeed, jumpTakeOffSpeed * model.jumpModifier);
+                    Schedule<PlayerJumped>().player = this;
+                    Schedule<PlayerLanded>().player = this;
+                }
+            }
         }
 
         private void LastKeyPressed()
