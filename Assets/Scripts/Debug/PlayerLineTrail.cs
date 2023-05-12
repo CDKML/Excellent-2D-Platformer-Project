@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace Assets.Scripts.Debug
 {
-    public class PlayerTrail : MonoBehaviour
+    public class PlayerLineTrail : MonoBehaviour
     {
         public float eraseTime = 2.0f;
         private LineRenderer line;

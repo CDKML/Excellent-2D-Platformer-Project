@@ -13,7 +13,8 @@ namespace Assets.Editor
         private int fps = 0;
 
         private bool showPlayerTrail = true;
-        private string playerTrailName = "PlayerTrail"; // Replace with your actual GameObject's name
+        private readonly string playerTrailName = "PlayerTrail"; // Replace with your actual GameObject's name
+
         [MenuItem("Window/" + windowName)]
         public static void ShowWindow()
         {

@@ -1,3 +1,4 @@
+using Assets.Scripts.Enums;
 using Platformer.Gameplay;
 using Platformer.Mechanics;
 using System.Collections;
@@ -16,7 +17,7 @@ public class ColliderController : MonoBehaviour
     private Vector2 colliderFalling = new Vector2(1f, 1f);
     private Vector2 colliderGrounded = new Vector2(1f, 1f);
     BoxCollider2D boxCollider2D;
-    public JumpState jumpState;
+    public JumpStateEnum JumpStateEnum;
     float timeElapsed = 0f;
     public float interpolationDuration = 0.25f;
 
@@ -30,24 +31,22 @@ public class ColliderController : MonoBehaviour
     // Update is called once per frame
     void FixedUpdate()
     {
-        jumpState = _playerController.GetJumpState();
-        switch (jumpState)
+        JumpStateEnum = _playerController.GetJumpState();
+        switch (JumpStateEnum)
         {
-            case JumpState.Jumping:
+            case JumpStateEnum.Jumping:
                 if (!_playerController.IsGrounded)
                 {
                     boxCollider2D.size = colliderJumpingUp;
                     LerpCollider(colliderGrounded, colliderJumpingUp);
                 }
                 break;
-            case JumpState.Falling:
-                //timeElapsed = 0f;
+            case JumpStateEnum.Falling:
                 boxCollider2D.size = colliderFalling;
                 LerpCollider(colliderJumpingUp, colliderFalling);
 
                 break;
-            case JumpState.Landed:
-                //timeElapsed = 0f;
+            case JumpStateEnum.Landed:
                 boxCollider2D.size = colliderGrounded;
                 LerpCollider(colliderFalling, colliderGrounded);
                 break;

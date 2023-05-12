@@ -1,14 +1,10 @@
-using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using Platformer.Gameplay;
-using static Platformer.Core.Simulation;
-using Platformer.Model;
+using Assets.Scripts.Enums;
 using Platformer.Core;
+using Platformer.Gameplay;
+using Platformer.Model;
+using UnityEngine;
 using UnityEngine.UI;
-using System;
-using Unity.Burst.CompilerServices;
-using Unity.VisualScripting;
+using static Platformer.Core.Simulation;
 
 namespace Platformer.Mechanics
 {
@@ -25,13 +21,13 @@ namespace Platformer.Mechanics
         /// <summary>
         /// Max horizontal speed of the player.
         /// </summary>
-        public float maxSpeed = 7;
+        public float maxSpeed = 5;
         /// <summary>
         /// Initial jump velocity at the start of a jump.
         /// </summary>
         public float jumpTakeOffSpeed = 7;
 
-        public JumpState jumpState = JumpState.Grounded;
+        public JumpStateEnum jumpState = JumpStateEnum.Grounded;
         private bool stopJump;
         /*internal new*/
         public Collider2D collider2d;
@@ -78,9 +74,9 @@ namespace Platformer.Mechanics
                 JumpBuffer();
                 LedgeHop();
 
-                if (coyoteTimeCounter > 0f && jumpBufferTimeCounter > 0f && jumpState != JumpState.Jumping)
+                if (coyoteTimeCounter > 0f && jumpBufferTimeCounter > 0f && jumpState != JumpStateEnum.Jumping)
                 {
-                    jumpState = JumpState.PrepareToJump;
+                    jumpState = JumpStateEnum.PrepareToJump;
                     jumpBufferTimeCounter = 0f;
                 }
                 else if (Input.GetButtonUp("Jump"))
@@ -95,6 +91,11 @@ namespace Platformer.Mechanics
                 move.x = 0;
             }
 
+            //if(velocity.y < -0.1)
+            //{
+            //    jumpState = JumpStateEnum.Falling;
+            //}
+
             UpdateJumpState();
             base.Update();
             base.FixedUpdate();
@@ -106,14 +107,14 @@ namespace Platformer.Mechanics
             Vector3 lineStart = Bounds.center;
 
             // Check if the player is near the edge of a platform and perform a ledge hop
-            if (move.y < 0f && IsGrounded && jumpState == JumpState.Grounded)
+            if (move.y < 0f && IsGrounded && jumpState == JumpStateEnum.Grounded)
             {
                 var bounds = collider2d.bounds;
                 var raycastHit = Physics2D.Raycast(bounds.center, Vector2.down, bounds.extents.y + 1f);
                 Debug.DrawLine(lineStart, raycastHit.point, lineColor);
                 if (raycastHit.collider != null && raycastHit.fraction > 0f && raycastHit.fraction < 0.5f)
                 {
-                    jumpState = JumpState.Jumping;
+                    jumpState = JumpStateEnum.Jumping;
                     velocity = new Vector2(move.x * maxSpeed, jumpTakeOffSpeed * model.jumpModifier);
                     Schedule<PlayerJumped>().player = this;
                     Schedule<PlayerLanded>().player = this;
@@ -165,33 +166,33 @@ namespace Platformer.Mechanics
             jump = false;
             switch (jumpState)
             {
-                case JumpState.PrepareToJump:
-                    jumpState = JumpState.Jumping;
+                case JumpStateEnum.PrepareToJump:
+                    jumpState = JumpStateEnum.Jumping;
                     jump = true;
                     stopJump = false;
                     break;
-                case JumpState.Jumping:
+                case JumpStateEnum.Jumping:
                     if (!IsGrounded)
                     {
                         Schedule<PlayerJumped>().player = this;
-                        jumpState = JumpState.InFlight;
+                        jumpState = JumpStateEnum.InFlight;
                     }
                     break;
-                case JumpState.InFlight:
+                case JumpStateEnum.InFlight:
                     if (velocity.y < 0)
                     {
-                        jumpState = JumpState.Falling;
+                        jumpState = JumpStateEnum.Falling;
                     }
                     break;
-                case JumpState.Falling:
+                case JumpStateEnum.Falling:
                     if (IsGrounded)
                     {
                         Schedule<PlayerLanded>().player = this;
-                        jumpState = JumpState.Landed;
+                        jumpState = JumpStateEnum.Landed;
                     }
                     break;
-                case JumpState.Landed:
-                    jumpState = JumpState.Grounded;
+                case JumpStateEnum.Landed:
+                    jumpState = JumpStateEnum.Grounded;
                     break;
             }
         }
@@ -208,7 +209,7 @@ namespace Platformer.Mechanics
                 stopJump = false;
                 if (velocity.y > 0)
                 {
-                    velocity.y = velocity.y * model.jumpDeceleration;
+                    velocity.y *= model.jumpDeceleration;
                 }
             }
 
@@ -223,19 +224,10 @@ namespace Platformer.Mechanics
             targetVelocity = move * maxSpeed;
         }
 
-        public JumpState GetJumpState()
+        public JumpStateEnum GetJumpState()
         {
             return jumpState;
         }
 
-        public enum JumpState
-        {
-            Grounded,
-            PrepareToJump,
-            Jumping,
-            InFlight,
-            Falling,
-            Landed
-        }
     }
 }
