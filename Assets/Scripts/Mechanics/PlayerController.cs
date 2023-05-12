@@ -89,14 +89,15 @@ namespace Platformer.Mechanics
                     Schedule<PlayerStopJump>().player = this;
                     coyoteTimeCounter = 0f;
                 }
-
             }
             else
             {
                 move.x = 0;
             }
+
             UpdateJumpState();
             base.Update();
+            base.FixedUpdate();
         }
         public Color lineColor;
 
@@ -177,6 +178,12 @@ namespace Platformer.Mechanics
                     }
                     break;
                 case JumpState.InFlight:
+                    if (velocity.y < 0)
+                    {
+                        jumpState = JumpState.Falling;
+                    }
+                    break;
+                case JumpState.Falling:
                     if (IsGrounded)
                     {
                         Schedule<PlayerLanded>().player = this;
@@ -216,12 +223,18 @@ namespace Platformer.Mechanics
             targetVelocity = move * maxSpeed;
         }
 
+        public JumpState GetJumpState()
+        {
+            return jumpState;
+        }
+
         public enum JumpState
         {
             Grounded,
             PrepareToJump,
             Jumping,
             InFlight,
+            Falling,
             Landed
         }
     }
