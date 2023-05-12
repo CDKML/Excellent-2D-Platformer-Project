@@ -38,6 +38,7 @@ namespace Platformer.Mechanics
 
         protected const float minMoveDistance = 0.001f;
         protected const float shellRadius = 0.01f;
+        protected const float terminalVelocity = -10.0f;
 
 
         /// <summary>
@@ -101,20 +102,25 @@ namespace Platformer.Mechanics
 
         protected virtual void FixedUpdate()
         {
-            //if already falling, fall faster than the jump speed, otherwise use normal gravity.
-            if (velocity.y < 0)
-                velocity += gravityModifier * Physics2D.gravity * Time.deltaTime;
-            else
-                velocity += Physics2D.gravity * Time.deltaTime;
+            if(velocity.y > terminalVelocity)
+            {
+                //if already falling, fall faster than the jump speed, otherwise use normal gravity.
+                if (velocity.y < 0)
+                {
+                    velocity += gravityModifier * Physics2D.gravity * Time.deltaTime;
+                }
+                else
+                {
+                    velocity += Physics2D.gravity * Time.deltaTime;
+                }
+            }
 
             velocity.x = targetVelocity.x;
 
             IsGrounded = false;
 
             var deltaPosition = velocity * Time.deltaTime;
-
             var moveAlongGround = new Vector2(groundNormal.y, -groundNormal.x);
-
             var move = moveAlongGround * deltaPosition.x;
 
             PerformMovement(move, false);
@@ -148,28 +154,31 @@ namespace Platformer.Mechanics
                             currentNormal.x = 0;
                         }
                     }
-                    if (IsGrounded)
+
+                    //If we hit something from below
+                    if (currentNormal.y < 0)
+                    {
+                        //We are airborne, but hit something, so cancel vertical up and horizontal velocity.
+                        velocity.x *= 0;
+                        velocity.y = Mathf.Min(velocity.y, 0);
+                    }
+                    else if (IsGrounded)
                     {
                         //how much of our velocity aligns with surface normal?
                         var projection = Vector2.Dot(velocity, currentNormal);
                         if (projection < 0)
                         {
                             //slower velocity if moving against the normal (up a hill).
-                            velocity = velocity - projection * currentNormal;
+                            velocity -= projection * currentNormal;
                         }
                     }
-                    else
-                    {
-                        //We are airborne, but hit something, so cancel vertical up and horizontal velocity.
-                        //velocity.x *= 0;
-                        //velocity.y = Mathf.Min(velocity.y, 0);
-                    }
+
                     //remove shellDistance from actual move distance.
                     var modifiedDistance = hitBuffer[i].distance - shellRadius;
                     distance = modifiedDistance < distance ? modifiedDistance : distance;
                 }
             }
-            body.position = body.position + move.normalized * distance;
+            body.position += move.normalized * distance;
         }
 
     }
