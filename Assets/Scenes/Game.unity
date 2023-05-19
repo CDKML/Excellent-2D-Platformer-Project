@@ -1015,7 +1015,7 @@ GameObject:
   - component: {fileID: 1210981206}
   - component: {fileID: 1210981205}
   - component: {fileID: 1210981207}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: Level
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16088,6 +16088,10 @@ PrefabInstance:
   m_Modification:
     m_TransformParent: {fileID: 324195463}
     m_Modifications:
+    - target: {fileID: 1333380945, guid: f25d9b879487ead40ab2c86aedbae6f0, type: 3}
+      propertyPath: m_Camera
+      value: 
+      objectReference: {fileID: 519420031}
     - target: {fileID: 685679592701073689, guid: f25d9b879487ead40ab2c86aedbae6f0, type: 3}
       propertyPath: m_RootOrder
       value: 0

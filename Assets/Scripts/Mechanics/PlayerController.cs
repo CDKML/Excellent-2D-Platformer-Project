@@ -3,6 +3,7 @@ using Platformer.Core;
 using Platformer.Gameplay;
 using Platformer.Model;
 using UnityEngine;
+using UnityEngine.InputSystem;
 using UnityEngine.UI;
 using static Platformer.Core.Simulation;
 
@@ -45,6 +46,9 @@ namespace Platformer.Mechanics
 
         bool jump;
         Vector2 move;
+        [SerializeField] InputActionReference moveAction;
+        [SerializeField] InputActionReference jumpAction;
+
         SpriteRenderer spriteRenderer;
         //internal Animator animator;
         readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
@@ -68,7 +72,7 @@ namespace Platformer.Mechanics
             {
                 LastKeyPressed();
 
-                move.x = Input.GetAxis("Horizontal");
+                move = moveAction.action.ReadValue<Vector2>();
 
                 CoyoteTimer();
                 JumpBuffer();
@@ -88,7 +92,7 @@ namespace Platformer.Mechanics
             }
             else
             {
-                move.x = 0;
+                move = Vector2.zero;
             }
 
             //if(velocity.y < -0.1)

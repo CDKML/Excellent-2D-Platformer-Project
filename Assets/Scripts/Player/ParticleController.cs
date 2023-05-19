@@ -2,7 +2,7 @@ using Assets.Scripts.Enums;
 using Platformer.Mechanics;
 using UnityEngine;
 
-namespace Assets.Scripts
+namespace Assets._Scripts
 {
     public class ParticleController : MonoBehaviour
     {
