@@ -8,11 +8,15 @@ namespace Assets._Scripts
     {
         [SerializeField] ParticleSystem movementParticle;
         [SerializeField] ParticleSystem fallParticle;
+        [SerializeField] ParticleSystem dashParticle;
 
         //PlayerController playerController;
         [SerializeField] GameObject playerGO;
         PlayerController playerController;
-        
+        PlayerDash playerDash;
+
+        bool alreadyDashed;
+
         [Range(0f, 10f)]
         [SerializeField] float speedThreshold = 0.1f;
 
@@ -24,6 +28,7 @@ namespace Assets._Scripts
         void Awake()
         {
             playerController = playerGO.GetComponent<PlayerController>();
+            playerDash = playerGO.GetComponent<PlayerDash>();
         }
 
         void Update()
@@ -43,6 +48,16 @@ namespace Assets._Scripts
             if (playerController.jumpState == JumpStateEnum.Landed)
             {
                 fallParticle.Play();
+            }
+
+            if (playerDash.isDashing && !alreadyDashed)
+            {
+                alreadyDashed = true;
+                dashParticle.Play();
+            }
+            else if (!playerDash.isDashing && alreadyDashed)
+            {
+                alreadyDashed = false;
             }
         }
     }

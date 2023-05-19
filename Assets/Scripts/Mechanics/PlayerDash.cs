@@ -10,7 +10,7 @@ public class PlayerDash : MonoBehaviour
 
     private Rigidbody2D rb;
     private float lastDashTime = -Mathf.Infinity;
-    private bool isDashing;
+    public bool isDashing;
 
     [SerializeField] InputActionReference dashAction;
     [SerializeField] InputActionReference moveAction;
