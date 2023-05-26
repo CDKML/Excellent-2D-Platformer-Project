@@ -14812,17 +14812,17 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 685679592701073689}
-  - component: {fileID: 8666558282112218166}
-  - component: {fileID: 8234314733984834632}
   - component: {fileID: 1052669089325616364}
   - component: {fileID: 8881962732161577870}
   - component: {fileID: 5954303934390927936}
   - component: {fileID: 3836789926053590858}
+  - component: {fileID: 8234314733984834632}
+  - component: {fileID: 8666558282112218166}
   - component: {fileID: 1333380944}
   - component: {fileID: 1333380945}
   m_Layer: 7
   m_Name: Player
-  m_TagString: Untagged
+  m_TagString: Player
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -14844,46 +14844,6 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &8666558282112218166
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2417319803335717869}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 2c3b48d3f84435f47996ecc3f7a49a6a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  minGroundNormalY: 0.65
-  gravityModifier: 2
-  velocity: {x: 0, y: 0}
-  maxSpeed: 5
-  jumpTakeOffSpeed: 7
-  jumpState: 0
-  collider2d: {fileID: 5954303934390927936}
-  audioSource: {fileID: 3836789926053590858}
-  health: {fileID: 8234314733984834632}
-  controlEnabled: 1
-  coyoteTime: 0.1
-  jumpBufferTime: 0.1
-  moveAction: {fileID: -1680190386980627800, guid: c539f842cf195bc4c9a7409552e50cdd, type: 3}
-  jumpAction: {fileID: 4949887723619682786, guid: c539f842cf195bc4c9a7409552e50cdd, type: 3}
-  textCanvas: {fileID: 0}
-  lineColor: {r: 0, g: 0, b: 0, a: 0}
---- !u!114 &8234314733984834632
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 2417319803335717869}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 4ace2189d71f0aa46a356d7b411ba77c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!212 &1052669089325616364
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -14944,7 +14904,7 @@ Rigidbody2D:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2417319803335717869}
-  m_BodyType: 1
+  m_BodyType: 0
   m_Simulated: 1
   m_UseFullKinematicContacts: 1
   m_UseAutoMass: 0
@@ -15079,6 +15039,43 @@ AudioSource:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
+--- !u!114 &8234314733984834632
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2417319803335717869}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ace2189d71f0aa46a356d7b411ba77c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+--- !u!114 &8666558282112218166
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2417319803335717869}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 2c3b48d3f84435f47996ecc3f7a49a6a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  minGroundNormalY: 0.65
+  gravityModifier: 2
+  velocity: {x: 0, y: 0}
+  maxSpeed: 8
+  jumpTakeOffSpeed: 12
+  controlEnabled: 1
+  coyoteTime: 0.1
+  jumpBufferTime: 0.15
+  moveAction: {fileID: -1680190386980627800, guid: c539f842cf195bc4c9a7409552e50cdd, type: 3}
+  jumpAction: {fileID: 4949887723619682786, guid: c539f842cf195bc4c9a7409552e50cdd, type: 3}
+  lastKeyPressed: {fileID: 0}
+  lineColor: {r: 0, g: 0, b: 0, a: 0}
+  jumpState: 0
 --- !u!114 &1333380944
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -15093,7 +15090,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   dashSpeed: 20
   dashDuration: 0.2
-  dashCooldown: 1
+  dashCooldown: 0.5
   isDashing: 0
   dashAction: {fileID: 366582416495807048, guid: c539f842cf195bc4c9a7409552e50cdd, type: 3}
   moveAction: {fileID: -1680190386980627800, guid: c539f842cf195bc4c9a7409552e50cdd, type: 3}
