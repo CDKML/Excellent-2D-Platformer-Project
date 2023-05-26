@@ -1,8 +1,6 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
-namespace _Scripts
+namespace Assets.Scripts
 {
 
     public class GameController : MonoBehaviour

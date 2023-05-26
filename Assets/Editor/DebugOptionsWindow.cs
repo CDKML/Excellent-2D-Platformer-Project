@@ -32,10 +32,9 @@ namespace Assets.Editor
                 GameObject playerTrail = GameObject.Find(playerTrailName);
                 if (playerTrail != null)
                 {
-                    LineRenderer lineRenderer = playerTrail.GetComponent<LineRenderer>();
-                    if (lineRenderer != null)
+                    if (playerTrail.TryGetComponent<TrailRenderer>(out var trailRenderer))
                     {
-                        lineRenderer.enabled = showPlayerTrail;
+                        trailRenderer.enabled = showPlayerTrail;
                     }
                 }
             }
