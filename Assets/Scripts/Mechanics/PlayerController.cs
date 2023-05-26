@@ -2,127 +2,124 @@ using Assets.Scripts.Enums;
 using Platformer.Core;
 using Platformer.Gameplay;
 using Platformer.Model;
+using TMPro;
 using UnityEngine;
-using UnityEngine.UI;
+using UnityEngine.InputSystem;
 using static Platformer.Core.Simulation;
 
 namespace Platformer.Mechanics
 {
-    /// <summary>
-    /// This is the main class used to implement control of the player.
-    /// It is a superset of the AnimationController class, but is inlined to allow for any kind of customisation.
-    /// </summary>
     public class PlayerController : KinematicObject
     {
-        //public AudioClip jumpAudio;
-        //public AudioClip respawnAudio;
-        //public AudioClip ouchAudio;
+        [Header("Player Parameters")]
+        [SerializeField] private float maxSpeed = 5;
+        [SerializeField] private float jumpTakeOffSpeed = 7;
+        [SerializeField] private bool controlEnabled = true;
 
-        /// <summary>
-        /// Max horizontal speed of the player.
-        /// </summary>
-        public float maxSpeed = 5;
-        /// <summary>
-        /// Initial jump velocity at the start of a jump.
-        /// </summary>
-        public float jumpTakeOffSpeed = 7;
+        [Header("Jump Timers")]
+        [SerializeField] private float coyoteTime = 0.1f;
+        [SerializeField] private float jumpBufferTime = 0.1f;
 
+        [Header("Controls")]
+        [SerializeField] private InputActionReference moveAction;
+        [SerializeField] private InputActionReference jumpAction;
+
+        [Header("Debugging")]
+        [SerializeField] private TextMeshProUGUI lastKeyPressed;
+        [SerializeField] private Color lineColor;
+
+        private Vector2 move;
         public JumpStateEnum jumpState = JumpStateEnum.Grounded;
+        private bool jump;
         private bool stopJump;
-        /*internal new*/
-        public Collider2D collider2d;
-        /*internal new*/
-        public AudioSource audioSource;
-        public Health health;
-        public bool controlEnabled = true;
-
-        public float coyoteTime = 0.1f;
-        float coyoteTimeCounter;
-
-        // Jump buffer variables
-        public float jumpBufferTime = 0.1f;
-        float jumpBufferTimeCounter;
-
-        bool jump;
-        Vector2 move;
-        SpriteRenderer spriteRenderer;
-        //internal Animator animator;
-        readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
-        public Text textCanvas;
+        private bool jumpReleased = false;
+        private bool jumpStarted = false;
+        private float coyoteTimeCounter;
+        private float jumpBufferTimeCounter;
         private KeyCode lastKeyCode;
 
-        public Bounds Bounds => collider2d.bounds;
+        private Collider2D collider2d;
+        private AudioSource audioSource;
+        private Health health;
+        private SpriteRenderer spriteRenderer;
+
+        private readonly PlatformerModel model = Simulation.GetModel<PlatformerModel>();
+
+        private Bounds Bounds => collider2d.bounds;
 
         void Awake()
         {
-            health = GetComponent<Health>();
-            audioSource = GetComponent<AudioSource>();
-            collider2d = GetComponent<Collider2D>();
-            spriteRenderer = GetComponent<SpriteRenderer>();
-            //animator = GetComponent<Animator>();
+            InitializeComponents();
+            SetupJumpAction();
+        }
+
+        protected override void FixedUpdate()
+        {
         }
 
         protected override void Update()
         {
             if (controlEnabled)
             {
-                LastKeyPressed();
-
-                move.x = Input.GetAxis("Horizontal");
-
-                CoyoteTimer();
-                JumpBuffer();
-                LedgeHop();
-
-                if (coyoteTimeCounter > 0f && jumpBufferTimeCounter > 0f && jumpState != JumpStateEnum.Jumping)
-                {
-                    jumpState = JumpStateEnum.PrepareToJump;
-                    jumpBufferTimeCounter = 0f;
-                }
-                else if (Input.GetButtonUp("Jump"))
-                {
-                    stopJump = true;
-                    Schedule<PlayerStopJump>().player = this;
-                    coyoteTimeCounter = 0f;
-                }
+                HandleInput();
             }
             else
             {
-                move.x = 0;
+                move = Vector2.zero;
             }
-
-            //if(velocity.y < -0.1)
-            //{
-            //    jumpState = JumpStateEnum.Falling;
-            //}
 
             UpdateJumpState();
             base.Update();
             base.FixedUpdate();
         }
-        public Color lineColor;
 
-        private void LedgeHop()
+        private void InitializeComponents()
         {
-            Vector3 lineStart = Bounds.center;
+            health = GetComponent<Health>();
+            audioSource = GetComponent<AudioSource>();
+            collider2d = GetComponent<Collider2D>();
+            spriteRenderer = GetComponent<SpriteRenderer>();
+        }
 
-            // Check if the player is near the edge of a platform and perform a ledge hop
-            if (move.y < 0f && IsGrounded && jumpState == JumpStateEnum.Grounded)
+        private void SetupJumpAction()
+        {
+            jumpAction.action.started += ctx => JumpStarted();
+            jumpAction.action.canceled += ctx => JumpCanceled();
+        }
+
+        private void HandleInput()
+        {
+            UpdateLastKeyPressed();
+
+            move = moveAction.action.ReadValue<Vector2>();
+
+            UpdateCoyoteTimer();
+            UpdateJumpBuffer();
+            CheckLedgeHop();
+
+            if (coyoteTimeCounter > 0f && jumpBufferTimeCounter > 0f && jumpState != JumpStateEnum.Jumping)
             {
-                var bounds = collider2d.bounds;
-                var raycastHit = Physics2D.Raycast(bounds.center, Vector2.down, bounds.extents.y + 1f);
-                Debug.DrawLine(lineStart, raycastHit.point, lineColor);
-                if (raycastHit.collider != null && raycastHit.fraction > 0f && raycastHit.fraction < 0.5f)
-                {
-                    jumpState = JumpStateEnum.Jumping;
-                    velocity = new Vector2(move.x * maxSpeed, jumpTakeOffSpeed * model.jumpModifier);
-                    Schedule<PlayerJumped>().player = this;
-                    Schedule<PlayerLanded>().player = this;
-                }
+                jumpState = JumpStateEnum.PrepareToJump;
+                jumpBufferTimeCounter = 0f;
+            }
+            else if (Input.GetKeyUp(KeyCode.W))
+            {
+                StopJump();
             }
         }
 
-        private void LastKeyPressed()
+        private void JumpStarted()
+        {
+            jumpStarted = true;
+            jumpReleased = false;
+        }
+
+        private void JumpCanceled()
+        {
+            jumpReleased = true;
+        }
+
+        private void UpdateLastKeyPressed()
         {
             if (Input.anyKeyDown)
             {
@@ -133,32 +130,53 @@ namespace Platformer.Mechanics
                         lastKeyCode = keyCode;
                     }
                 }
-                textCanvas.text = "Last Key Pressed: " + lastKeyCode.ToString();
+
+                lastKeyPressed.text = "Last pressed: " + lastKeyCode.ToString();
             }
         }
 
-        private void CoyoteTimer()
+        private void UpdateCoyoteTimer()
         {
-            if (IsGrounded)
+            coyoteTimeCounter = IsGrounded ? coyoteTime : coyoteTimeCounter - Time.deltaTime;
+        }
+
+        private void UpdateJumpBuffer()
+        {
+            jumpBufferTimeCounter = jumpStarted ? jumpBufferTime : jumpBufferTimeCounter - Time.deltaTime;
+            if (jumpStarted) jumpStarted = false;
+        }
+
+        private void CheckLedgeHop()
+        {
+            Vector3 lineStart = Bounds.center;
+
+            if (move.y < 0f && IsGrounded && jumpState == JumpStateEnum.Grounded)
             {
-                coyoteTimeCounter = coyoteTime;
-            }
-            else
-            {
-                coyoteTimeCounter -= Time.deltaTime;
+                var bounds = collider2d.bounds;
+                var raycastHit = Physics2D.Raycast(bounds.center, Vector2.down, bounds.extents.y + 1f);
+                var ledgeHopLine = new Vector3(raycastHit.point.x, raycastHit.point.y, -1);
+                Debug.DrawLine(lineStart, ledgeHopLine, lineColor);
+
+                if (raycastHit.collider != null && raycastHit.fraction > 0f && raycastHit.fraction < 0.5f)
+                {
+                    PerformLedgeHop();
+                }
             }
         }
 
-        private void JumpBuffer()
+        private void PerformLedgeHop()
         {
-            if (Input.GetButtonDown("Jump"))
-            {
-                jumpBufferTimeCounter = jumpBufferTime;
-            }
-            else
-            {
-                jumpBufferTimeCounter -= Time.deltaTime;
-            }
+            jumpState = JumpStateEnum.Jumping;
+            velocity = new Vector2(move.x * maxSpeed, jumpTakeOffSpeed * model.jumpModifier);
+            Schedule<PlayerJumped>().player = this;
+            Schedule<PlayerLanded>().player = this;
+        }
+
+        private void StopJump()
+        {
+            stopJump = true;
+            Schedule<PlayerStopJump>().player = this;
+            coyoteTimeCounter = 0f;
         }
 
         void UpdateJumpState()
@@ -167,67 +185,106 @@ namespace Platformer.Mechanics
             switch (jumpState)
             {
                 case JumpStateEnum.PrepareToJump:
-                    jumpState = JumpStateEnum.Jumping;
-                    jump = true;
-                    stopJump = false;
+                    PrepareToJump();
                     break;
                 case JumpStateEnum.Jumping:
-                    if (!IsGrounded)
-                    {
-                        Schedule<PlayerJumped>().player = this;
-                        jumpState = JumpStateEnum.InFlight;
-                    }
+                    JumpingStateUpdate();
                     break;
                 case JumpStateEnum.InFlight:
-                    if (velocity.y < 0)
-                    {
-                        jumpState = JumpStateEnum.Falling;
-                    }
+                    InFlightStateUpdate();
                     break;
                 case JumpStateEnum.Falling:
-                    if (IsGrounded)
-                    {
-                        Schedule<PlayerLanded>().player = this;
-                        jumpState = JumpStateEnum.Landed;
-                    }
+                    FallingStateUpdate();
                     break;
                 case JumpStateEnum.Landed:
-                    jumpState = JumpStateEnum.Grounded;
+                    LandedStateUpdate();
                     break;
             }
+        }
+
+        private void PrepareToJump()
+        {
+            jumpState = JumpStateEnum.Jumping;
+            jump = true;
+            stopJump = false;
+        }
+
+        private void JumpingStateUpdate()
+        {
+            if (!IsGrounded)
+            {
+                Schedule<PlayerJumped>().player = this;
+                jumpState = JumpStateEnum.InFlight;
+            }
+        }
+
+        private void InFlightStateUpdate()
+        {
+            if (velocity.y < 0)
+            {
+                jumpState = JumpStateEnum.Falling;
+            }
+        }
+
+        private void FallingStateUpdate()
+        {
+            if (IsGrounded)
+            {
+                Schedule<PlayerLanded>().player = this;
+                jumpState = JumpStateEnum.Landed;
+            }
+        }
+
+        private void LandedStateUpdate()
+        {
+            jumpState = JumpStateEnum.Grounded;
         }
 
         protected override void ComputeVelocity()
         {
             if (jump && (IsGrounded || coyoteTime > 0f))
             {
-                velocity.y = jumpTakeOffSpeed * model.jumpModifier;
-                jump = false;
+                PerformJump();
             }
             else if (stopJump)
             {
-                stopJump = false;
-                if (velocity.y > 0)
-                {
-                    velocity.y *= model.jumpDeceleration;
-                }
+                DecelerateJump();
             }
 
-            if (move.x > 0.01f)
-                spriteRenderer.flipX = false;
-            else if (move.x < -0.01f)
-                spriteRenderer.flipX = true;
-
-            //animator.SetBool("grounded", IsGrounded);
-            //animator.SetFloat("velocityX", Mathf.Abs(velocity.x) / maxSpeed);
-
+            SetSpriteDirection();
             targetVelocity = move * maxSpeed;
+        }
+
+        private void PerformJump()
+        {
+            velocity.y = jumpTakeOffSpeed * model.jumpModifier;
+            jump = false;
+        }
+
+        private void DecelerateJump()
+        {
+            stopJump = false;
+            if (velocity.y > 0)
+            {
+                velocity.y *= model.jumpDeceleration;
+            }
+        }
+
+        private void SetSpriteDirection()
+        {
+            if (move.x > 0.01f)
+            {
+                spriteRenderer.flipX = false;
+            }
+            else if (move.x < -0.01f)
+            {
+                spriteRenderer.flipX = true;
+            }
         }
 
         public JumpStateEnum GetJumpState()
         {
             return jumpState;
         }
-
     }
 }

@@ -8,9 +8,6 @@ public class OnObjectEnable : MonoBehaviour
 
     public void OnEnable()
     {
-        if (this.onEnable != null)
-        {
-            this.onEnable.Invoke();
-        }
+        onEnable?.Invoke();
     }
 }
