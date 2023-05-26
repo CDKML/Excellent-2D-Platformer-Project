@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
 namespace Platformer.Mechanics
@@ -40,7 +38,6 @@ namespace Platformer.Mechanics
         protected const float shellRadius = 0.01f;
         protected const float terminalVelocity = -10.0f;
 
-
         /// <summary>
         /// Bounce the object's vertical velocity.
         /// </summary>
@@ -74,12 +71,12 @@ namespace Platformer.Mechanics
         protected virtual void OnEnable()
         {
             body = GetComponent<Rigidbody2D>();
-            body.isKinematic = true;
+            //body.isKinematic = true;
         }
 
         protected virtual void OnDisable()
         {
-            body.isKinematic = false;
+            //body.isKinematic = false;
         }
 
         protected virtual void Start()
@@ -97,12 +94,37 @@ namespace Platformer.Mechanics
 
         protected virtual void ComputeVelocity()
         {
+            //if (velocity.y > terminalVelocity)
+            //{
+            //    //if already falling, fall faster than the jump speed, otherwise use normal gravity.
+            //    if (velocity.y < 0)
+            //    {
+            //        velocity += gravityModifier * Physics2D.gravity * Time.deltaTime;
+            //    }
+            //    else
+            //    {
+            //        velocity += Physics2D.gravity * Time.deltaTime;
+            //    }
+            //}
 
+            //velocity.x = targetVelocity.x;
+
+            //IsGrounded = false;
+
+            //var deltaPosition = velocity * Time.deltaTime;
+            //var moveAlongGround = new Vector2(groundNormal.y, -groundNormal.x);
+            //var move = moveAlongGround * deltaPosition.x;
+
+            //PerformMovement(move, false);
+
+            //move = Vector2.up * deltaPosition.y;
+
+            //PerformMovement(move, true);
         }
 
         protected virtual void FixedUpdate()
         {
-            if(velocity.y > terminalVelocity)
+            if (velocity.y > terminalVelocity)
             {
                 //if already falling, fall faster than the jump speed, otherwise use normal gravity.
                 if (velocity.y < 0)
@@ -128,7 +150,6 @@ namespace Platformer.Mechanics
             move = Vector2.up * deltaPosition.y;
 
             PerformMovement(move, true);
-
         }
 
         void PerformMovement(Vector2 move, bool yMovement)

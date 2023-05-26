@@ -29,30 +29,17 @@ public class PlayerDash : MonoBehaviour
     {
         isDashing = true;
 
-        Vector2 currentDirection = moveAction.action.ReadValue<Vector2>().normalized; // Reads the current movement direction.
+        SpriteRenderer spriteRenderer = GetComponent<SpriteRenderer>();
+        Vector2 dashDirection = spriteRenderer.flipX ? Vector2.left : Vector2.right;
 
-        Vector2 dashVelocity = currentDirection * dashSpeed;
+        Vector2 dashVelocity = dashDirection * dashSpeed;
 
-        BoxCollider2D boxCollider = GetComponent<BoxCollider2D>();
-        RaycastHit2D hit = Physics2D.BoxCast(rb.position, boxCollider.size, 0f, currentDirection, dashSpeed * dashDuration, dashCollisionLayers);
-
-        if (hit.collider != null)
-        {
-            // If there is a collision in the direction of the dash, end the dash at the collision point
-            rb.position = hit.point;
-            rb.velocity = Vector2.zero;
-        }
-        else
-        {
-            // If there is no collision, perform the dash normally
-            rb.velocity = dashVelocity;
-            var originalGravity = rb.gravityScale;
-            rb.gravityScale = 0f;
-            yield return new WaitForSeconds(dashDuration);
-            rb.velocity = Vector2.zero;
-            rb.gravityScale = originalGravity;
-
-        }
+        rb.velocity = dashVelocity;
+        var originalGravity = rb.gravityScale;
+        rb.gravityScale = 0f;
+        yield return new WaitForSeconds(dashDuration);
+        rb.velocity = Vector2.zero;
+        rb.gravityScale = originalGravity;
 
         isDashing = false;
         lastDashTime = Time.time;
