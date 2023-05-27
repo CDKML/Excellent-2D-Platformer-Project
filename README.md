@@ -1,4 +1,4 @@
-# Excelent-2D-Platformer-Project
+# Excellent-2D-Platformer-Project
 This project's objective is to implement the basic mechanics that any good 2D platformer should have, such as:
 1. Jump buffer
 2. Coyote time
