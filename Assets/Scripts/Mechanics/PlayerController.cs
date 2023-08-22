@@ -2,7 +2,9 @@ using Assets.Scripts.Enums;
 using Platformer.Core;
 using Platformer.Gameplay;
 using Platformer.Model;
+using System;
 using TMPro;
+using UnityEditor.U2D.Path.GUIFramework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static Platformer.Core.Simulation;
@@ -23,10 +25,12 @@ namespace Platformer.Mechanics
         [Header("Controls")]
         [SerializeField] private InputActionReference moveAction;
         [SerializeField] private InputActionReference jumpAction;
+        [SerializeField] private InputActionReference toggleInventoryAction;
 
         [Header("Debugging")]
         [SerializeField] private TextMeshProUGUI lastKeyPressed;
         [SerializeField] private Color lineColor;
+        [SerializeField] private GameObject inventoryUI;   // Reference to your inventory UI
 
         private Vector2 move;
         public JumpStateEnum jumpState = JumpStateEnum.Grounded;
@@ -51,6 +55,25 @@ namespace Platformer.Mechanics
         {
             InitializeComponents();
             SetupJumpAction();
+            SetupToggleInventoryAction();
+        }
+
+        private void SetupToggleInventoryAction()
+        {
+            toggleInventoryAction.action.Enable();
+            toggleInventoryAction.action.started += ctx => { ToggleInventory(); };
+        }
+
+        private void ToggleInventory()
+        {
+            if (inventoryUI.activeSelf)
+            {
+                inventoryUI.SetActive(false);
+            }
+            else
+            {
+                inventoryUI.SetActive(true);
+            }
         }
 
         protected override void FixedUpdate()
