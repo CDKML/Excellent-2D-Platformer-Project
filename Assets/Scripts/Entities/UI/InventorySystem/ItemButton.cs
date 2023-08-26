@@ -5,17 +5,17 @@ namespace Assets.Scripts.Entities.UI.InventorySystem
     public class ItemButton : MonoBehaviour
     {
         public ItemSO item;
-
-        private InventorySystem inventorySystem;
+        private InventoryUIController inventoryUIController;
+        [SerializeField] private GameObject borderGameObject;
 
         private void Start()
         {
-            inventorySystem = FindObjectOfType<InventorySystem>();
+            inventoryUIController = FindObjectOfType<InventoryUIController>();
         }
 
         public void ClickedButton()
         {
-            inventorySystem.OnItemSelect(item);
+            inventoryUIController.OnItemSelect(item, borderGameObject);
         }
     }
 }

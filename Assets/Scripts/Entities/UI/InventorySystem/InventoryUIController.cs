@@ -14,17 +14,16 @@ namespace Assets.Scripts.Entities.UI.InventorySystem
         public TextMeshProUGUI itemDescriptionText;
         public GameObject itemButtonPrefab;  // A prefab representing an item button in the UI
         public Transform inventoryPanel;     // A parent object where all the item buttons will be instantiated
+        private GameObject currentSelectedBorder; // Keeps track of the currently selected item's border
 
-        public void UpdateInventoryUI(List<ItemSO> items)
+        public void UpdateInventoryUI(List<ItemStack> items)
         {
             ClearInventoryUI();
 
-            foreach (ItemSO item in items)
+            foreach (ItemStack item in items)
             {
                 CreateInventoryButton(item);
             }
-
-            DisplayFirstItem(items);
         }
 
         private void ClearInventoryUI()
@@ -35,34 +34,23 @@ namespace Assets.Scripts.Entities.UI.InventorySystem
             }
         }
 
-        private void CreateInventoryButton(ItemSO item)
+        private void CreateInventoryButton(ItemStack itemStack)
         {
-            GameObject newButton = Instantiate(itemButtonPrefab, inventoryPanel);
-            newButton.GetComponent<Image>().sprite = item.icon;     // Set the sprite
-            newButton.GetComponent<ItemButton>().item = item;       // Assign the item to button's script
-        }
+            GameObject inventoryButton = Instantiate(itemButtonPrefab, inventoryPanel);
+            inventoryButton.GetComponent<Image>().sprite = itemStack.Item.icon;     // Set the sprite
+            inventoryButton.GetComponent<ItemButton>().item = itemStack.Item;       // Assign the item to button's script
 
-        private void DisplayFirstItem(List<ItemSO> items)
-        {
-            ItemSO firstItem = items.FirstOrDefault();
-
-            if (firstItem != null)
+            // Set the quantity text
+            TextMeshProUGUI quantityText = inventoryButton.transform.Find("QuantityText").GetComponent<TextMeshProUGUI>();
+            if (itemStack.Quantity > 1)
             {
-                DisplayItem(firstItem);
+                quantityText.text = itemStack.Quantity.ToString();
             }
             else
             {
-                ClearDescription();
+                quantityText.text = ""; // Clear the text if there's only one item
             }
         }
-
-        private void ClearDescription()
-        {
-            itemIcon.sprite = null;
-            itemNameText.text = "No Item Selected";
-            itemDescriptionText.text = "";
-        }
-
 
         // Method to update the UI
         public void DisplayItem(ItemSO item)
@@ -79,6 +67,27 @@ namespace Assets.Scripts.Entities.UI.InventorySystem
                 ClearDescription();
             }
         }
-    }
 
+        private void ClearDescription()
+        {
+            itemIcon.sprite = null;
+            itemNameText.text = "No Item Selected";
+            itemDescriptionText.text = "";
+        }
+
+        // This function is called when a new item is selected
+        public void OnItemSelect(ItemSO selectedItem, GameObject newSelectedBorder)
+        {
+            DisplayItem(selectedItem);
+            // Disable the current selected border
+            if (currentSelectedBorder != null)
+            {
+                currentSelectedBorder.SetActive(false);
+            }
+
+            // Enable the new selected border and update the reference
+            newSelectedBorder.SetActive(true);
+            currentSelectedBorder = newSelectedBorder;
+        }
+    }
 }

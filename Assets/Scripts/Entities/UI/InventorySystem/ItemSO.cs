@@ -11,13 +11,16 @@ public class ItemSO : ScriptableObject
         Tool,
         // ... add more types as needed
     }
+    public int MaxStackAmount { get { return maxStackAmount; } }
 
     [Header("Item Details")]
     public string itemName = "New Item";        // The name of the item
-    public Sprite icon = null;                   // The item's icon
-    public ItemType itemType;                    // The type of the item
-    public bool isStackable = false;             // Can this item stack?
-    public int maxStackAmount = 1;               // Max amount in one stack if stackable
+    public Sprite icon = null;                  // The item's icon
+    public ItemType itemType;                   // The type of the item
+    public bool isStackable = false;            // Can this item stack?
+    [SerializeField] private int maxStackAmount = 1;              // Max amount in one stack if stackable
+    //public int quantity = 0;                    // Actual amount in a stack
+
     [TextArea]
     public string description = "Item Description"; // Description of the item
 

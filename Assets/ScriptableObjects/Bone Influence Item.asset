@@ -17,6 +17,7 @@ MonoBehaviour:
   itemType: 0
   isStackable: 0
   maxStackAmount: 1
+  quantity: 2
   description: Bone influence description
   attackModifier: 0
   defenseModifier: 0

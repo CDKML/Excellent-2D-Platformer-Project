@@ -16,7 +16,7 @@ MonoBehaviour:
   icon: {fileID: 21300000, guid: 76beef9fdae7b48468ddf07d0400a374, type: 3}
   itemType: 0
   isStackable: 0
-  maxStackAmount: 1
+  maxStackAmount: 10
   description: Bone description
   attackModifier: 0
   defenseModifier: 0
