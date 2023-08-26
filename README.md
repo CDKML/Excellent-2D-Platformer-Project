@@ -19,6 +19,7 @@ In terms of environment, the project will implement:
 3. Fall from platform: press down to fall from the plaftorm
 4. Score/Progress System: A system to track the player's score, progress through levels, remaining lives, etc. This also includes checkpoints or save game states
 5. New Unity input system
+6. Inventory system with stackable items and description of each item
 
 In terms Unity tools and editor/debug helpers, it will have:
 1. FPS counter (checkbox)
