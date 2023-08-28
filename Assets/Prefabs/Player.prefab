@@ -15073,8 +15073,10 @@ MonoBehaviour:
   jumpBufferTime: 0.15
   moveAction: {fileID: -1680190386980627800, guid: c539f842cf195bc4c9a7409552e50cdd, type: 3}
   jumpAction: {fileID: 4949887723619682786, guid: c539f842cf195bc4c9a7409552e50cdd, type: 3}
+  toggleInventoryAction: {fileID: 2939995881467225824, guid: c539f842cf195bc4c9a7409552e50cdd, type: 3}
   lastKeyPressed: {fileID: 0}
   lineColor: {r: 0, g: 0, b: 0, a: 0}
+  inventoryUI: {fileID: 0}
   jumpState: 0
 --- !u!114 &1333380944
 MonoBehaviour:

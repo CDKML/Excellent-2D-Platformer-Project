@@ -2,7 +2,9 @@ using Assets.Scripts.Enums;
 using Platformer.Core;
 using Platformer.Gameplay;
 using Platformer.Model;
+using System;
 using TMPro;
+using UnityEditor.U2D.Path.GUIFramework;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using static Platformer.Core.Simulation;
@@ -23,10 +25,12 @@ namespace Platformer.Mechanics
         [Header("Controls")]
         [SerializeField] private InputActionReference moveAction;
         [SerializeField] private InputActionReference jumpAction;
+        [SerializeField] private InputActionReference toggleInventoryAction;
 
         [Header("Debugging")]
         [SerializeField] private TextMeshProUGUI lastKeyPressed;
         [SerializeField] private Color lineColor;
+        [SerializeField] private GameObject inventoryUIGO;   // Reference to your inventory UI
 
         private Vector2 move;
         public JumpStateEnum jumpState = JumpStateEnum.Grounded;
@@ -51,6 +55,7 @@ namespace Platformer.Mechanics
         {
             InitializeComponents();
             SetupJumpAction();
+            SetupToggleInventoryAction();
         }
 
         protected override void FixedUpdate()
@@ -79,6 +84,24 @@ namespace Platformer.Mechanics
             audioSource = GetComponent<AudioSource>();
             collider2d = GetComponent<Collider2D>();
             spriteRenderer = GetComponent<SpriteRenderer>();
+        }
+
+        private void SetupToggleInventoryAction()
+        {
+            toggleInventoryAction.action.Enable();
+            toggleInventoryAction.action.started += ctx => { ToggleInventory(); };
+        }
+
+        private void ToggleInventory()
+        {
+            if (inventoryUIGO.activeSelf)
+            {
+                inventoryUIGO.SetActive(false);
+            }
+            else
+            {
+                inventoryUIGO.SetActive(true);
+            }
         }
 
         private void SetupJumpAction()

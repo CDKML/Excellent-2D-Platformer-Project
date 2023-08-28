@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace Assets.Scripts.Debug
+namespace Assets.Scripts.Debugs
 {
     public class PlayerLineTrail : MonoBehaviour
     {
