@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using Zenject;
 
 public class MasterInstaller : MonoInstaller
@@ -15,5 +13,4 @@ public class MasterInstaller : MonoInstaller
         // Self References
         Container.Bind<Rigidbody2D>().FromComponentSibling();
     }
-
 }

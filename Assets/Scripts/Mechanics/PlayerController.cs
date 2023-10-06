@@ -1,12 +1,13 @@
 using Assets.Scripts.Enums;
+using Assets.Scripts.Mechanics.Interfaces;
+using Assets.Scripts.Signals;
 using Platformer.Core;
 using Platformer.Gameplay;
 using Platformer.Model;
-using System;
 using TMPro;
-using UnityEditor.U2D.Path.GUIFramework;
 using UnityEngine;
 using UnityEngine.InputSystem;
+using Zenject;
 using static Platformer.Core.Simulation;
 
 namespace Platformer.Mechanics
@@ -51,6 +52,12 @@ namespace Platformer.Mechanics
 
         private Bounds Bounds => collider2d.bounds;
 
+        [Inject]
+        private IJumpHandler jumpHandler;
+
+        [Inject]
+        private SignalBus signalBus;
+
         void Awake()
         {
             InitializeComponents();
@@ -73,7 +80,7 @@ namespace Platformer.Mechanics
                 move = Vector2.zero;
             }
 
-            UpdateJumpState();
+            jumpHandler.UpdateJumpState();
             base.Update();
             base.FixedUpdate();
         }
@@ -106,8 +113,8 @@ namespace Platformer.Mechanics
 
         private void SetupJumpAction()
         {
-            jumpAction.action.started += ctx => JumpStarted();
-            jumpAction.action.canceled += ctx => JumpCanceled();
+            jumpAction.action.started += ctx => signalBus.Fire(new JumpStartSignal(this));
+            jumpAction.action.canceled += ctx => signalBus.Fire(new JumpCancelSignal(this));
         }
 
         private void HandleInput()
@@ -131,13 +138,13 @@ namespace Platformer.Mechanics
             }
         }
 
-        private void JumpStarted()
+        public void JumpStarted()
         {
             jumpStarted = true;
             jumpReleased = false;
         }
 
-        private void JumpCanceled()
+        public void JumpCanceled()
         {
             jumpReleased = true;
         }
@@ -200,67 +207,6 @@ namespace Platformer.Mechanics
             stopJump = true;
             Schedule<PlayerStopJump>().player = this;
             coyoteTimeCounter = 0f;
-        }
-
-        void UpdateJumpState()
-        {
-            jump = false;
-            switch (jumpState)
-            {
-                case JumpStateEnum.PrepareToJump:
-                    PrepareToJump();
-                    break;
-                case JumpStateEnum.Jumping:
-                    JumpingStateUpdate();
-                    break;
-                case JumpStateEnum.InFlight:
-                    InFlightStateUpdate();
-                    break;
-                case JumpStateEnum.Falling:
-                    FallingStateUpdate();
-                    break;
-                case JumpStateEnum.Landed:
-                    LandedStateUpdate();
-                    break;
-            }
-        }
-
-        private void PrepareToJump()
-        {
-            jumpState = JumpStateEnum.Jumping;
-            jump = true;
-            stopJump = false;
-        }
-
-        private void JumpingStateUpdate()
-        {
-            if (!IsGrounded)
-            {
-                Schedule<PlayerJumped>().player = this;
-                jumpState = JumpStateEnum.InFlight;
-            }
-        }
-
-        private void InFlightStateUpdate()
-        {
-            if (velocity.y < 0)
-            {
-                jumpState = JumpStateEnum.Falling;
-            }
-        }
-
-        private void FallingStateUpdate()
-        {
-            if (IsGrounded)
-            {
-                Schedule<PlayerLanded>().player = this;
-                jumpState = JumpStateEnum.Landed;
-            }
-        }
-
-        private void LandedStateUpdate()
-        {
-            jumpState = JumpStateEnum.Grounded;
         }
 
         protected override void ComputeVelocity()
