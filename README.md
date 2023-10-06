@@ -5,3 +5,4 @@ This project's objective is to implement the basic systems that many good projec
 3. Cinemachine asset for camera control
 4. Dependency Injection (using Zenject)
 5. Code analysis with SonarQube. (TBD)
+6. Unity Testing Framework (TBD)
