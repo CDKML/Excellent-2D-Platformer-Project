@@ -4,31 +4,28 @@ using Zenject;
 
 namespace Assets.Scripts.InputManager.Handlers
 {
-    public class JumpActionHandler : IInitializable, IDisposable
+    public class JumpActionHandler : SignalBusUser, IDisposable
     {
-        [Inject]
-        private SignalBus signalBus;
-
-        public void Initialize()
+        public void Start()
         {
-            signalBus.Subscribe<JumpStartSignal>(OnJumpStart);
-            signalBus.Subscribe<JumpCancelSignal>(OnJumpCancel);
+            SignalBus.Subscribe<JumpStartSignal>(OnJumpStart);
+            SignalBus.Subscribe<JumpCancelSignal>(OnJumpCancel);
         }
 
         public void Dispose()
         {
-            signalBus.Unsubscribe<JumpStartSignal>(OnJumpStart);
-            signalBus.Unsubscribe<JumpCancelSignal>(OnJumpCancel);
+            SignalBus.Unsubscribe<JumpStartSignal>(OnJumpStart);
+            SignalBus.Unsubscribe<JumpCancelSignal>(OnJumpCancel);
         }
 
         private void OnJumpStart(JumpStartSignal signal)
         {
-            signal.Player.JumpStarted();
+            signal.JumpHandler.JumpStartedAction();
         }
 
         private void OnJumpCancel(JumpCancelSignal signal)
         {
-            signal.Player.JumpCanceled();
+            signal.JumpHandler.JumpCanceledAction();
         }
     }
 }

@@ -1,13 +1,11 @@
 using Assets.Scripts.Enums;
-using Assets.Scripts.Mechanics.Interfaces;
-using Assets.Scripts.Signals;
+using Assets.Scripts.Mechanics;
 using Platformer.Core;
 using Platformer.Gameplay;
 using Platformer.Model;
 using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
-using Zenject;
 using static Platformer.Core.Simulation;
 
 namespace Platformer.Mechanics
@@ -16,12 +14,8 @@ namespace Platformer.Mechanics
     {
         [Header("Player Parameters")]
         [SerializeField] private float maxSpeed = 5;
-        [SerializeField] private float jumpTakeOffSpeed = 7;
         [SerializeField] private bool controlEnabled = true;
 
-        [Header("Jump Timers")]
-        [SerializeField] private float coyoteTime = 0.1f;
-        [SerializeField] private float jumpBufferTime = 0.1f;
 
         [Header("Controls")]
         [SerializeField] private InputActionReference moveAction;
@@ -34,13 +28,6 @@ namespace Platformer.Mechanics
         [SerializeField] private GameObject inventoryUIGO;   // Reference to your inventory UI
 
         private Vector2 move;
-        public JumpStateEnum jumpState = JumpStateEnum.Grounded;
-        private bool jump;
-        private bool stopJump;
-        private bool jumpReleased = false;
-        private bool jumpStarted = false;
-        private float coyoteTimeCounter;
-        private float jumpBufferTimeCounter;
         private KeyCode lastKeyCode;
 
         private Collider2D collider2d;
@@ -52,21 +39,13 @@ namespace Platformer.Mechanics
 
         private Bounds Bounds => collider2d.bounds;
 
-        [Inject]
-        private IJumpHandler jumpHandler;
-
-        [Inject]
-        private SignalBus signalBus;
+        [SerializeField] private JumpHandler jumpHandler;
 
         void Awake()
         {
             InitializeComponents();
-            SetupJumpAction();
+            jumpHandler.SetupJumpAction(jumpAction);
             SetupToggleInventoryAction();
-        }
-
-        protected override void FixedUpdate()
-        {
         }
 
         protected override void Update()
@@ -111,42 +90,17 @@ namespace Platformer.Mechanics
             }
         }
 
-        private void SetupJumpAction()
-        {
-            jumpAction.action.started += ctx => signalBus.Fire(new JumpStartSignal(this));
-            jumpAction.action.canceled += ctx => signalBus.Fire(new JumpCancelSignal(this));
-        }
-
         private void HandleInput()
         {
             UpdateLastKeyPressed();
 
             move = moveAction.action.ReadValue<Vector2>();
 
-            UpdateCoyoteTimer();
-            UpdateJumpBuffer();
+            jumpHandler.UpdateCoyoteTimer();
+            jumpHandler.UpdateJumpBuffer();
             CheckLedgeHop();
 
-            if (coyoteTimeCounter > 0f && jumpBufferTimeCounter > 0f && jumpState != JumpStateEnum.Jumping)
-            {
-                jumpState = JumpStateEnum.PrepareToJump;
-                jumpBufferTimeCounter = 0f;
-            }
-            else if (Input.GetKeyUp(KeyCode.W))
-            {
-                StopJump();
-            }
-        }
-
-        public void JumpStarted()
-        {
-            jumpStarted = true;
-            jumpReleased = false;
-        }
-
-        public void JumpCanceled()
-        {
-            jumpReleased = true;
+            jumpHandler.JumpInputLogic();
         }
 
         private void UpdateLastKeyPressed()
@@ -165,25 +119,13 @@ namespace Platformer.Mechanics
             }
         }
 
-        private void UpdateCoyoteTimer()
-        {
-            coyoteTimeCounter = IsGrounded ? coyoteTime : coyoteTimeCounter - Time.deltaTime;
-        }
-
-        private void UpdateJumpBuffer()
-        {
-            jumpBufferTimeCounter = jumpStarted ? jumpBufferTime : jumpBufferTimeCounter - Time.deltaTime;
-            if (jumpStarted) jumpStarted = false;
-        }
-
         private void CheckLedgeHop()
         {
             Vector3 lineStart = Bounds.center;
 
-            if (move.y < 0f && IsGrounded && jumpState == JumpStateEnum.Grounded)
+            if (move.y < 0f && IsGrounded && jumpHandler.JumpState == JumpStateEnum.Grounded)
             {
-                var bounds = collider2d.bounds;
-                var raycastHit = Physics2D.Raycast(bounds.center, Vector2.down, bounds.extents.y + 1f);
+                var raycastHit = Physics2D.Raycast(Bounds.center, Vector2.down, Bounds.extents.y + 1f);
                 var ledgeHopLine = new Vector3(raycastHit.point.x, raycastHit.point.y, -1);
                 Debug.DrawLine(lineStart, ledgeHopLine, lineColor);
 
@@ -196,47 +138,25 @@ namespace Platformer.Mechanics
 
         private void PerformLedgeHop()
         {
-            jumpState = JumpStateEnum.Jumping;
-            velocity = new Vector2(move.x * maxSpeed, jumpTakeOffSpeed * model.jumpModifier);
+            jumpHandler.JumpState = JumpStateEnum.Jumping;
+            velocity = new Vector2(move.x * maxSpeed, jumpHandler.JumpTakeOffSpeed * model.jumpModifier);
             Schedule<PlayerJumped>().player = this;
             Schedule<PlayerLanded>().player = this;
         }
 
-        private void StopJump()
-        {
-            stopJump = true;
-            Schedule<PlayerStopJump>().player = this;
-            coyoteTimeCounter = 0f;
-        }
-
         protected override void ComputeVelocity()
         {
-            if (jump && (IsGrounded || coyoteTime > 0f))
+            if (jumpHandler.Jump && (IsGrounded || jumpHandler.CoyoteTime > 0f))
             {
-                PerformJump();
+                jumpHandler.PerformJump();
             }
-            else if (stopJump)
+            else if (jumpHandler.StopJumping)
             {
-                DecelerateJump();
+                jumpHandler.DecelerateJump();
             }
 
             SetSpriteDirection();
             targetVelocity = move * maxSpeed;
-        }
-
-        private void PerformJump()
-        {
-            velocity.y = jumpTakeOffSpeed * model.jumpModifier;
-            jump = false;
-        }
-
-        private void DecelerateJump()
-        {
-            stopJump = false;
-            if (velocity.y > 0)
-            {
-                velocity.y *= model.jumpDeceleration;
-            }
         }
 
         private void SetSpriteDirection()
@@ -251,9 +171,5 @@ namespace Platformer.Mechanics
             }
         }
 
-        public JumpStateEnum GetJumpState()
-        {
-            return jumpState;
-        }
     }
 }

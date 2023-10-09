@@ -1,14 +1,14 @@
 ﻿using Assets.Scripts.InputManager.Interfaces;
-using Platformer.Mechanics;
+using Assets.Scripts.Mechanics;
 
 namespace Assets.Scripts.InputManager.Actions
 {
 
-    public class JumpStartAction : IPlayerAction
+    public class JumpStartAction : IPlayerAction<JumpHandler>
     {
-        public void Execute(PlayerController player)
+        public void Execute(JumpHandler jumpHandler)
         {
-            player.JumpStarted();
+            jumpHandler.JumpStartedAction();
         }
     }
 }

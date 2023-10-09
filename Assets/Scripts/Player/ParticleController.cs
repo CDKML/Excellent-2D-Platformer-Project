@@ -1,4 +1,5 @@
 using Assets.Scripts.Enums;
+using Assets.Scripts.Mechanics;
 using Platformer.Mechanics;
 using UnityEngine;
 
@@ -13,6 +14,7 @@ namespace Assets.Scripts
         //PlayerController playerController;
         [SerializeField] GameObject playerGO;
         PlayerController playerController;
+        JumpHandler jumpHandler;
         PlayerDash playerDash;
 
         bool alreadyDashed;
@@ -28,15 +30,22 @@ namespace Assets.Scripts
         void Awake()
         {
             playerController = playerGO.GetComponent<PlayerController>();
+            jumpHandler = playerGO.GetComponent<JumpHandler>();
             playerDash = playerGO.GetComponent<PlayerDash>();
         }
 
         void Update()
         {
             counter += Time.deltaTime;
+            JumpLogic();
+            DashLogic();
+        }
+
+        private void JumpLogic()
+        {
 
             // Emit particles when the player is moving
-            if (playerController.jumpState == JumpStateEnum.Grounded && Mathf.Abs(playerController.velocity.x) > speedThreshold)
+            if (jumpHandler.JumpState == JumpStateEnum.Grounded && Mathf.Abs(playerController.velocity.x) > speedThreshold)
             {
                 if (counter > dustFormationPeriod)
                 {
@@ -45,11 +54,14 @@ namespace Assets.Scripts
                 }
             }
 
-            if (playerController.jumpState == JumpStateEnum.Landed)
+            if (jumpHandler.JumpState == JumpStateEnum.Landed)
             {
                 fallParticle.Play();
             }
+        }
 
+        private void DashLogic()
+        {
             if (playerDash.isDashing && !alreadyDashed)
             {
                 alreadyDashed = true;
