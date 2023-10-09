@@ -14,7 +14,8 @@ namespace Assets.Scripts
                 InstallSignals();
 
                 // Bind the handlers
-                Container.BindInterfacesAndSelfTo<JumpActionHandler>().AsSingle().NonLazy();
+                Container.Bind<JumpActionHandler>().FromComponentInHierarchy().AsSingle().NonLazy();
+
             }
             catch (System.Exception ex)
             {

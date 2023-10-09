@@ -1,14 +1,14 @@
-﻿using Platformer.Mechanics;
+﻿using Assets.Scripts.Mechanics;
 
 namespace Assets.Scripts.Signals
 {
     public class JumpCancelSignal
     {
-        public PlayerController Player { get; }
+        public JumpHandler JumpHandler { get; }
 
-        public JumpCancelSignal(PlayerController player)
+        public JumpCancelSignal(JumpHandler jumpHandler)
         {
-            Player = player;
+            JumpHandler = jumpHandler;
         }
     }
 }

@@ -53,8 +53,8 @@ namespace Platformer.Mechanics
         /// <param name="dir"></param>
         public void Bounce(Vector2 dir)
         {
-            velocity.y = dir.y;
             velocity.x = dir.x;
+            velocity.y = dir.y;
         }
 
         /// <summary>
@@ -94,32 +94,7 @@ namespace Platformer.Mechanics
 
         protected virtual void ComputeVelocity()
         {
-            //if (velocity.y > terminalVelocity)
-            //{
-            //    //if already falling, fall faster than the jump speed, otherwise use normal gravity.
-            //    if (velocity.y < 0)
-            //    {
-            //        velocity += gravityModifier * Physics2D.gravity * Time.deltaTime;
-            //    }
-            //    else
-            //    {
-            //        velocity += Physics2D.gravity * Time.deltaTime;
-            //    }
-            //}
 
-            //velocity.x = targetVelocity.x;
-
-            //IsGrounded = false;
-
-            //var deltaPosition = velocity * Time.deltaTime;
-            //var moveAlongGround = new Vector2(groundNormal.y, -groundNormal.x);
-            //var move = moveAlongGround * deltaPosition.x;
-
-            //PerformMovement(move, false);
-
-            //move = Vector2.up * deltaPosition.y;
-
-            //PerformMovement(move, true);
         }
 
         protected virtual void FixedUpdate()
@@ -201,6 +176,5 @@ namespace Platformer.Mechanics
             }
             body.position += move.normalized * distance;
         }
-
     }
 }

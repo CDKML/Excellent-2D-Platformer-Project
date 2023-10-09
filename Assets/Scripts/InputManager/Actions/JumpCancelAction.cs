@@ -1,13 +1,13 @@
 ﻿using Assets.Scripts.InputManager.Interfaces;
-using Platformer.Mechanics;
+using Assets.Scripts.Mechanics;
 
 namespace Assets.Scripts.InputManager.Actions
 {
-    public class JumpCancelAction : IPlayerAction
+    public class JumpCancelAction : IPlayerAction<JumpHandler>
     {
-        public void Execute(PlayerController player)
+        public void Execute(JumpHandler jumpHandler)
         {
-            player.JumpCanceled();
+            jumpHandler.JumpCanceledAction();
         }
     }
 }

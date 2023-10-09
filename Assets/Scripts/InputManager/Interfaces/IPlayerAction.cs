@@ -1,10 +1,8 @@
-﻿using Platformer.Mechanics;
-
-namespace Assets.Scripts.InputManager.Interfaces
+﻿namespace Assets.Scripts.InputManager.Interfaces
 {
-    // Define an interface for actions that the player can perform
-    public interface IPlayerAction
+    // Define a generic interface for actions that the player can perform
+    public interface IPlayerAction<T>
     {
-        void Execute(PlayerController player);
+        void Execute(T jumpHandler);
     }
 }
